@@ -1,0 +1,21 @@
+tech22jpa1SpringMVC
+架构： springMVC jpa hibernate ehcache bonecp数据库连接池 
+
+程序运行成功，案例中的调用缓存不能用，参数不注释掉  
+关于缓存的：applicationContext.xml 中的 <ehcache:annotation-driven
+可能会报错，但不影响使用
+
+内容：
+http://endual.iteye.com/blog/1928295
+此表头有问题，参考：
+http://blog.csdn.net/woshishui6501/article/details/51026960
+
+访问：
+http://127.0.0.1:8082/tech22jpa1SpringMVC
+访问用户列表就是： 
+http://127.0.0.1:8082/tech22jpa1SpringMVC/user/userList.do
+保存用户：
+ http://127.0.0.1:8082/tech22jpa1SpringMVC/user/saveUser.do
+根据主键查找用户： 
+http://127.0.0.1:8082/tech22jpa1SpringMVC/user/getUserById.do?id=1
+APP是我的应用名称。
