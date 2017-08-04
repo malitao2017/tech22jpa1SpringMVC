@@ -14,7 +14,7 @@ import javax.persistence.Table;
  *
  */
 @Entity
-@Table(name="tech_jpa_springmvc_userinfo")
+@Table(name="t_user_info")
 public class UserInfo implements Serializable{
 
 	private static final long serialVersionUID = 1L;

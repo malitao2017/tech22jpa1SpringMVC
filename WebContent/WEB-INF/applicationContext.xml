@@ -1,37 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
-xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-xmlns:aop="http://www.springframework.org/schema/aop"
-xmlns:tx="http://www.springframework.org/schema/tx"
-xmlns:context="http://www.springframework.org/schema/context"
-xmlns:p="http://www.springframework.org/schema/p"
-xmlns:cache="http://www.springframework.org/schema/cache"
-xmlns:ehcache="http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring"
-xsi:schemaLocation="
-http://www.springframework.org/schema/beans
-http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
-http://www.springframework.org/schema/tx
-http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
-http://www.springframework.org/schema/aop
-http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
-http://www.springframework.org/schema/context
-http://www.springframework.org/schema/context/spring-context-3.1.xsd
-http://www.springframework.org/schema/cache
-http://www.springframework.org/schema/cache/spring-cache-3.1.xsd
-http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring
-http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring/ehcache-spring-1.1.xsd">
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:cache="http://www.springframework.org/schema/cache"
+	xmlns:ehcache="http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans
+	http://www.springframework.org/schema/beans/spring-beans-3.1.xsd
+	http://www.springframework.org/schema/tx
+	http://www.springframework.org/schema/tx/spring-tx-3.1.xsd
+	http://www.springframework.org/schema/aop
+	http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+	http://www.springframework.org/schema/context
+	http://www.springframework.org/schema/context/spring-context-3.1.xsd
+	http://www.springframework.org/schema/cache
+	http://www.springframework.org/schema/cache/spring-cache-3.1.xsd
+	http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring
+	http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring/ehcache-spring-1.1.xsd"
+	>
 
 	<!-- 原来产生问题： 空格里有汉字 -->
+	<!-- 使用注解方式 -->
 	<context:annotation-config></context:annotation-config>
 	
 	<!-- 启动组件扫描，排除@Controller组件，该组件由SpringMVC配置文件扫描 -->
     <context:component-scan base-package="jpa">
 		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
 	</context:component-scan>
+	
 	<!-- 属性文件位置 -->
 	<context:property-placeholder location="classpath:jdbc.properties"/>
 	
-	<!-- 数据源 -->
+	<!-- 数据源: boneCP-->
 	<bean id="dataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
 		<!-- 数据库驱动 -->
             <property name="driverClass" value="${jdbc.driverClassName}"></property>
@@ -59,16 +62,27 @@ http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring/ehcac
         <property name="releaseHelperThreads" value="${BoneCP.releaseHelperThreads}" />
 	</bean>
 	
+	<!-- jpa的实现者：hibernate的配置 -->
+	<!-- 用于指定持久化实现厂商类 -->
+	<bean id="persistenceProvider" class="org.hibernate.ejb.HibernatePersistence"></bean>
+	<!-- 用于设置JPA实现厂商的特定属性 ：spring对hibernateJpa的接口对接 其他的还有： EclipseLinkJpa OpenJpa等-->
+	<bean id="jpaVendorAdapter" class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+		<property name="database" value="MYSQL"></property>
+	</bean>
+	<!-- 用于指定一些高级特性：spring中对数据库方言的特性：hibernateJpa -->
+	<bean id="jpaDialect" class="org.springframework.orm.jpa.vendor.HibernateJpaDialect"/>
+	
 	<!-- JPA实体管理器工厂 -->
 	<bean id="entityManagerFactory" class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
-	<!-- jpa配置来源4处 -->
+		<!-- jpa配置来源4处 -->
 		<property name="dataSource" ref="dataSource"></property>
 		<property name="persistenceProvider" ref="persistenceProvider"></property>
 		<property name="jpaVendorAdapter" ref="jpaVendorAdapter"/>  
 		<property name="jpaDialect" ref="jpaDialect"></property>
 		
-		<!-- 扫描加载的实体包名 -->
+		<!-- 扫描加载的实体包名 ：如原答案中为 cn.luxh.app.entity-->
 		<property name="packagesToScan" value="jpa.entity"></property>
+		<!-- jpa的属性 -->
 		<property name="jpaProperties">
 			<props>
 				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
@@ -83,29 +97,27 @@ http://ehcache-spring-annotations.googlecode.com/svn/schema/ehcache-spring/ehcac
 			</props>
 		</property>
 	</bean>
-	<!-- 用于指定持久化实现厂商类 -->
-	<bean id="persistenceProvider" class="org.hibernate.ejb.HibernatePersistence"></bean>
-	<!-- 用于设置JPA实现厂商的特定属性 -->
-	<bean id="jpaVendorAdapter" class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
-		<property name="database" value="MYSQL"></property>
-	</bean>
-	<!-- 用于指定一些高级特性 -->
-	<bean id="jpaDialect" class="org.springframework.orm.jpa.vendor.HibernateJpaDialect"/>
 	
 	<!-- 事务管理器 -->  
 	<bean id="txManager" class="org.springframework.orm.jpa.JpaTransactionManager">
 		<property name="entityManagerFactory" ref="entityManagerFactory"></property>
 	</bean>
-	 
 	<!-- 注解式事务 --> 
 	<tx:annotation-driven transaction-manager="txManager"/>
-	<!-- 启用缓存注解功能 -->
-	<ehcache:annotation-driven cache-manager="ehCacheManager" /> 
-	<!-- cacheManager工厂类，指定ehcache.xml的位置 -->    
-	<bean id="ehCacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"
-		p:configLocation="classpath:/ehcache.xml"/>
-
 	
+	
+	<!-- bean放前面 -->
+	
+	<!-- 启用缓存注解功能 -->
+	<ehcache:annotation-driven cache-manager="ehCacheManager" />
+	<!-- cacheManager工厂类，指定ehcache.xml的位置 -->    
+	<bean id="ehCacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">    
+       <property name="configLocation" value="classpath:ehcache.xml" />    
+   	</bean> 
+   	<!-- 第二种写法 spring的p标签写法-->
+   	<!-- <bean id="ehCacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean"
+		p:configLocation="classpath:/ehcache.xml"/> -->
+			
 </beans>
 
 

@@ -7,6 +7,7 @@
 <title>练习jpa</title>
 </head>
 <body>
+<a href="http://127.0.0.1:8082/tech22jpa1SpringMVC">返回首页</a>
 	用户的提示信息为： ${message}
 </body>
 </html>

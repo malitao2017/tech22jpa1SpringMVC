@@ -8,8 +8,11 @@ import org.springframework.stereotype.Repository;
  * 通用DAO实现
  * @author Luxh
  */
+
+//实例化
 @Repository
 public class BaseDaoImpl implements BaseDao{
+	
 	//注入实体管理器
 	@PersistenceContext
 	protected EntityManager em;

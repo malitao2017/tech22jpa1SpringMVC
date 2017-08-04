@@ -8,7 +8,6 @@
 </head>
 <body>
 欢迎：
-<a href="http://127.0.0.1:8082/tech22jpa1SpringMVC/user/userList.do">展示</a>
 <a href=" http://127.0.0.1:8082/tech22jpa1SpringMVC/user/saveUser.do">保存</a>
 <a href="http://127.0.0.1:8082/tech22jpa1SpringMVC/user/getUserById.do?id=1">查询</a>
 </body>
